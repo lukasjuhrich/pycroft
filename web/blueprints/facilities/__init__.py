@@ -54,10 +54,14 @@ def overview_json():
 @bp.route('/sites/<int:site_id>')
 def site_show(site_id):
     site = Site.q.get(site_id)
-    buildings_list = facilities.sort_buildings(site.buildings)
-    return render_template('facilities/site_show.html',
-        buildings=buildings_list,
-        page_title=site.name)
+    # The list of buildings isn't used in the template.
+    # buildings_list = facilities.sort_buildings(site.buildings)
+    return render_template(
+        'facilities/site_show.html',
+        # buildings=buildings_list,
+        site=site,
+        page_title=site.name
+    )
 
 
 @bp.route('/buildings/<int:building_id>/')

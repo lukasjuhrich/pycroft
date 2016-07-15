@@ -6,6 +6,8 @@
 {% extends "layout.html" %}
 
 {% block content %}
+
+    {% if "Wundt" in site.name %}
     <div style="text-align: center;" xmlns="http://www.w3.org/1999/html"
          xmlns="http://www.w3.org/1999/html"
          xmlns="http://www.w3.org/1999/html">
@@ -299,4 +301,12 @@
     </g>
     </svg>
     </div>
+    {% elif "Zeuner" in site.name %}
+        Hier entsteht die Zeunerstraße
+    {% elif "Bors" in site.name %}
+        Hier entsteht die Borsbergstraße.
+    {% else %}
+        Fehler!! :(
+    {% endif %}
+
 {% endblock %}
