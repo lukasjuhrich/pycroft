@@ -1,0 +1,49 @@
+
+* Glyphicons
+
+  | euro     | not account_balanced          |
+  | stats    | member and traffic_exceeded   |
+  | remove   | member and not network_access |
+  | alert    | member and violation          |
+  | ok       | neither of the above          |
+  | wrench   | admin                         |
+  | envelope | not member and mail           |
+
+** How to apply
+
+   union from top to bottom, except for ok.  More general: Tree-like
+   joining with „ok“ being the „else“-part of the one separate branch.
+
+   Thus, we have:
+
+   #+BEGIN_SRC
+   MAPPING = NODE
+   NODE = CONDITIONAL | NODE_UNION
+   NODE_UNION = *NODE
+   CONDITIONAL = AND_CHAIN [ELSE_PART]  # TODO: not chain, but union of cond.s!
+   AND_CHAIN = *   # pfuh, not even right…
+   ELSE_PART = VALUE
+   MAPPING =
+   ATOM = ['not'] STR
+   #+END_SRC
+
+   And can recursively apply the analysis:
+   #+BEGIN_SRC
+   # icons(NODE)  # = icons(MAPPING)
+   icons(CONDITIONAL (chain, else_part)) = icons(AND_CHAIN chain) or else_part
+   icons(NODE_UNION nodes) = [node for node in nodes]
+   icons(AND_CHAIN) = icons()
+   #+END_SRC
+
+
+* Buttons
+
+  | warning | not account_balanced          |
+  | warning | member and traffic_exceeded   |
+  | danger  | member and not network-access |
+  | danger  | member and violation          |
+  | success | else                          |
+
+* Note
+
+  I just wrote things down on paper.
