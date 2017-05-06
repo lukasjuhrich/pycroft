@@ -9,8 +9,12 @@ from hades_logs import HadesLogs, HadesTimeout
 class ConfiguredHadesLogs(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.BROKER_URL = os.environ['HADES_BROKER_URI']
-        cls.BACKEND_URL = os.environ['HADES_RESULT_BACKEND_URI']
+        try:
+            cls.BROKER_URL = os.environ['HADES_BROKER_URI']
+            cls.BACKEND_URL = os.environ['HADES_RESULT_BACKEND_URI']
+        except KeyError:
+            cls.skipTest(reason="Broker and/or backend not configured. Skipping.")
+            # TODO: look up this shit
 
     def setUp(self):
         super().setUp()
