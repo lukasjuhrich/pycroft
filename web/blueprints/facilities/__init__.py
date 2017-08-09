@@ -105,24 +105,57 @@ def building_level_rooms(level, building_id=None, building_shortname=None):
         )
     )
 
+import time
+import logging
+
+class timewith():
+    def __init__(self, name=''):
+        self.name = name
+        self.start = time.time()
+        self.logger = logging.getLogger('timer')
+
+    @property
+    def elapsed(self):
+        return time.time() - self.start
+
+    def checkpoint(self, name=''):
+        self.logger.warning('{timer} {checkpoint} took {elapsed} seconds'
+                            .format(
+                                timer=self.name,
+                                checkpoint=name,
+                                elapsed=self.elapsed,
+                            ).strip())
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.checkpoint('finished')
+
 
 @bp.route('/buildings/<int:building_id>/levels/<int:level>/rooms/json')
 @bp.route('/buildings/<building_shortname>/levels/<int:level>/rooms/json')
 def building_level_rooms_json(level, building_id=None, building_shortname=None):
-    building = facilities.determine_building(id=building_id, shortname=building_shortname)
-    rooms = session.session.query(Room).filter(
-        Room.building==building, Room.level==level
-    ).order_by(Room.number).all()
+    with timewith('[building_level_rooms_json]') as timer:
+        building = facilities.determine_building(id=building_id, shortname=building_shortname)
+        timer.checkpoint('Building determined')
+        rooms = session.session.query(Room).filter(
+            Room.building==building, Room.level==level
+        ).order_by(Room.number).all()
+        timer.checkpoint('Rooms fetched')
 
-    status_q = status_query().join(Room).filter(
-        Room.building == building, Room.level == level,
-        User.member_of(config.member_group)
-    )
+        status_q = status_query().join(Room).filter(
+            Room.building == building, Room.level == level,
+            User.member_of(config.member_group)
+        )
+        logging.getLogger('querystuff').warning("FOOOOOO{}OOOOOOOOOF".format(str(status_q)))
 
-    statuses = {r.id: [] for r in rooms}
-    for row in status_q.all():
-        statuses[row.User.room_id].append(row)
-
+        statuses = {r.id: [] for r in rooms}
+        result = status_q.all()
+        timer.checkpoint("Status query executed")
+        for row in result:
+            statuses[row.User.room_id].append(row)
+        timer.checkpoint("Status info appended to dict")
 
     return jsonify(items=[{
             'room': {
