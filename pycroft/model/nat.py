@@ -37,6 +37,8 @@ class DHCPHostReservation(ModelBase):
     ip = Column(IPAddress, primary_key=True, nullable=False)
     mac = Column(MACAddress, nullable=False)
 
+    # TODO: A relationship to an `InsideNetwork` comparing (ip, ≤), (dom, ==)
+
     __table_args__ = (
         single_ipv4_constraint(col=ip),
     )
